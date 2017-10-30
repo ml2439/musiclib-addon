@@ -1,0 +1,8 @@
+{
+    "type": "musiclib-artists-list",
+    "config": {
+        "chrome": {
+            "title": "Musiclib Artists List"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+{
+    "type": "musiclib-reviews-list",
+    "config": {
+        "chrome": {
+            "title": "Musiclib Reviews List"
+        }
+    }
+}

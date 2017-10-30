@@ -1,9 +1,9 @@
 <div>
-    {{#each albums}}
+    {{#each reviews}}
     <div class="media">
         <div class="media-left">
             <a href="#" class="media-popup" data-media-index="{{@index}}">
-                <img class="media-object" src="{{imageUrl128}}" alt="{{title}}">
+                <p>{{onAlbum.title}}</p>
             </a>
         </div>
         <div class="media-body">
@@ -11,7 +11,6 @@
                 <a href="{{browseUrl}}">{{title}}</a>
             </h4>
             {{description}}
-            <p>By <strong>{{createdBy.title}}</strong></p>            
         </div>
     </div>
     {{/each}}

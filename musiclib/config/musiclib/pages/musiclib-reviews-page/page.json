@@ -1,6 +1,6 @@
 {
-    "title": "Albums",
-    "uri": "/projects/{projectId}/albums",
+    "title": "Reviews",
+    "uri": "/projects/{projectId}/reviews",
     "extends": "project/_project",
     "template": "musiclib-template"
 }
