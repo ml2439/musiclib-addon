@@ -7,7 +7,4 @@ define(function(require) {
     // page: "musiclib-reviews-list"
     require("./gadgets/musiclib-reviews-list/musiclib-reviews-list.js");
     
-    // global CSS overrides
-    require("css!./styles/sample.css");
-
 });
