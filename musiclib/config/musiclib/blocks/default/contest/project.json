@@ -1,0 +1,43 @@
+{
+    "evaluator": "context-project",
+    "config": {
+        "context": {
+            "items": [{
+                "key": "list/header",
+                "title": "List",
+                "order": 10000,
+                "header": true,
+                "iconClass": "fa fa-dashboard",
+                "allowAuthority": ["manager"],
+                "allowPermission": ["read"],
+                "rejectAuthority": [],
+                "rejectPermission": [],
+                "items": [{
+                    "key": "musiclib/albums",
+                    "title": "Albums",
+                    "uri": "#/projects/{projectId}/albums",
+                    "iconClass": "fa fa-pencil",
+                    "allowPermission": [
+                        "manager"
+                    ]
+                }, {
+                    "key": "musiclib/artists",
+                    "title": "Artists",
+                    "uri": "#/projects/{projectId}/artists",
+                    "iconClass": "fa fa-pencil",
+                    "allowPermission": [
+                        "manager"
+                    ]
+                }, {
+                    "key": "musiclib/reviews",
+                    "title": "Reviews",
+                    "uri": "#/projects/{projectId}/reviews",
+                    "iconClass": "fa fa-pencil",
+                    "allowPermission": [
+                        "manager"
+                    ]
+                }]
+            }]
+        }
+    }
+}

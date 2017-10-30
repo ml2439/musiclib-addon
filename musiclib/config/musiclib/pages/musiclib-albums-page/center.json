@@ -1,0 +1,8 @@
+{
+    "type": "musiclib-albums-list",
+    "config": {
+        "chrome": {
+            "title": "Musiclib Albums List"
+        }
+    }
+}
