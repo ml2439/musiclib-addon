@@ -16,7 +16,7 @@
                     "key": "musiclib/albums",
                     "title": "Albums",
                     "uri": "#/projects/{projectId}/albums",
-                    "iconClass": "fa fa-pencil",
+                    "iconClass": "fa fa-music",
                     "allowPermission": [
                         "manager"
                     ]
@@ -24,7 +24,7 @@
                     "key": "musiclib/artists",
                     "title": "Artists",
                     "uri": "#/projects/{projectId}/artists",
-                    "iconClass": "fa fa-pencil",
+                    "iconClass": "fa fa-user",
                     "allowPermission": [
                         "manager"
                     ]
@@ -32,7 +32,7 @@
                     "key": "musiclib/reviews",
                     "title": "Reviews",
                     "uri": "#/projects/{projectId}/reviews",
-                    "iconClass": "fa fa-pencil",
+                    "iconClass": "fa fa-comments",
                     "allowPermission": [
                         "manager"
                     ]

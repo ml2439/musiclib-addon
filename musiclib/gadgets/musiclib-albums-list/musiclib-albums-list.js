@@ -1,109 +1,113 @@
-define(function(require, exports, module) {
-    
-        var html = require("text!./musiclib-albums-list.html");
-    
-        var Empty = require("ratchet/dynamic/empty");
-    
-        var UI = require("ui");
-    
-        return UI.registerGadget("musiclib-albums-list", Empty.extend({
-    
-            TEMPLATE: html,
-    
-            /**
-             * Binds this gadget to the /albums route
-             */
-            setup: function() {
-                this.get("/projects/{projectId}/albums", this.index);
-            },
-    
-            /**
-             * Puts variables into the model for rendering within our template.
-             * Once we've finished setting up the model, we must fire callback().
-             *
-             * @param el
-             * @param model
-             * @param callback
-             */
-            prepareModel: function(el, model, callback) {
-    
-                // get the current project
-                var project = this.observable("project").get();
-    
-                // the current branch
-                var branch = this.observable("branch").get();
-    
-                // call into base method and then set up the model
-                this.base(el, model, function() {
-    
-                    // query for musiclib:album instances
-                    branch.queryNodes({ "_type": "musiclib:album" }).then(function() {
-    
-                        // store "albums" on the model (as a list) and then fire callback
-                        model.albums = this.asArray();
-    
-                        // add "imageUrl" attribute to each album
-                        // add "browseUrl" attribute to each album
-                        for (var i = 0; i < model.albums.length; i++)
-                        {
-                            var album = model.albums[i];
-    
-                            album.imageUrl256 = "/preview/repository/" + album.getRepositoryId() + "/branch/" + album.getBranchId() + "/node/" + album.getId() + "/default?size=256&name=preview256&force=true";
-                            album.imageUrl128 = "/preview/repository/" + album.getRepositoryId() + "/branch/" + album.getBranchId() + "/node/" + album.getId() + "/default?size=128&name=preview128&force=true";
-                            album.browseUrl = "/#/projects/" + project._doc + "/documents/" + album._doc;
-                        }
-    
-                        callback();
-                    });
-                });
-            },
-    
-            /**
-             * This method gets called before the rendered DOM element is injected into the page.
-             *
-             * @param el the dom element
-             * @param model the model used to render the template
-             * @param callback
-             */
-            /*
-            beforeSwap: function(el, model, callback)
-            {
-                this.base(el, model, function() {
-                    callback();
-                });
-            },
-            */
-    
-            /**
-             * This method gets called after the rendered DOM element has been injected into the page.
-             *
-             * @param el the new dom element (in page)
-             * @param model the model used to render the template
-             * @param originalContext the dispatch context used to inject
-             * @param callback
-             */
-            afterSwap: function(el, model, originalContext, callback)
-            {
-                this.base(el, model, originalContext, function() {
-    
-                    // find all .media-popups and attach to a lightbox
-                    $(el).find(".media-popup").click(function(e) {
-    
-                        e.preventDefault();
-    
-                        var albumIndex = $(this).attr("data-media-index");
-                        var album = model.albums[albumIndex];
-    
-                        UI.showPopupModal({
-                            "title": "Viewing: " + album.title,
-                            "body": "<div style='text-align:center'><img src='" + album.imageUrl256 + "'></div>"
-                        });
-                    });
-    
-                    callback();
-                });
+define(function (require, exports, module) {
+
+    var Ratchet = require("ratchet/web");
+    var DocList = require("ratchet/dynamic/doclist");
+    var OneTeam = require("oneteam");
+
+    return Ratchet.GadgetRegistry.register("musiclib-albums-list", DocList.extend({
+
+        configureDefault: function () {
+            this.base();
+
+            this.config({
+                "observables": {
+                    "query": "musiclib-albums-list_query",
+                    "sort": "musiclib-albums-list_sort",
+                    "sortDirection": "musiclib-albums-list_sortDirection",
+                    "searchTerm": "musiclib-albums-list_searchTerm",
+                    "selectedItems": "musiclib-albums-list_selectedItems"
+                }
+            });
+        },
+
+        setup: function () {
+            this.get("/projects/{projectId}/albums", this.index);
+        },
+        
+        entityTypes: function () {
+            return {
+                "plural": "albums",
+                "singular": "album"
             }
-    
-        }));
-    
-    });
+        },
+
+        doGitanaQuery: function (context, model, searchTerm, query, pagination, callback) {
+            var self = this;
+//1 Only using MongoDB
+            if (OneTeam.isEmptyOrNonExistent(query) && searchTerm)
+            {
+                query = OneTeam.searchQuery(searchTerm, ["title"]);
+            }
+            query._type = "musiclib:album";
+
+            OneTeam.projectBranch(self, function () {
+
+                this.queryNodes(query, pagination).then(function () {
+                    callback(this);
+                });
+
+            });
+
+//2 Only using ElasticSearch
+            // if(!searchTerm) {
+            //     searchTerm = "";
+            // }
+
+            // OneTeam.projectBranch(self, function () {
+
+            //     this.searchNodes(searchTerm, pagination).then(function () {
+            //         callback(this);
+            //     });
+
+            // });
+
+//3 MongoDB fetch everything then ElasticSearch
+            // query._type = "musiclib:album";
+
+            // var o = {};
+            // o.query = query;
+            // if(searchTerm){
+            //     o.search = searchTerm;
+            // }
+            // OneTeam.projectBranch(self, function () {
+
+            //     this.find(o, pagination).then(function () {
+            //         callback(this);
+            //     });
+
+            // });
+            
+            
+        },
+
+        // click and goto
+        linkUri: function (row, model, context) {
+            return OneTeam.linkUri(this, row) + "/editor";
+        },
+
+        iconClass: function (row) {
+            return null;
+        },
+
+        // default attachment
+        iconUri: function(row, model, context)
+        {
+            return OneTeam.iconUriForNode(row);
+        },
+
+        columnValue: function (row, item, model, context) {
+            var self = this;
+
+            var value = this.base(row, item);
+
+            if (item.key == "titleDescription") {
+                value = OneTeam.listTitleDescription(context, row, self.linkUri(row, model, context));
+            }
+
+            return value;
+        }
+
+
+    }));
+
+});
