@@ -1,8 +1,69 @@
 {
     "type": "musiclib-albums-list",
     "config": {
-        "chrome": {
-            "title": "Musiclib Albums List"
+        "chrome": false,
+        "buttons": [{
+            "key": "create_album",
+            "title": "Create Album",
+            "iconClass": "fa fa-plus",
+            "align": "left",
+            "action": "create_album",
+            "allowPermission": [
+                "create_subobjects"
+            ]
+        }],
+        "options": {
+            "filter": true
+        },
+        "columns": [{
+            "title": "Album",
+            "key": "titleDescription"
+        }],
+        "icon": true,
+        "checkbox": true,
+        "loader": "gitana",
+        "selectorGroups": {
+            "multi-documents-action-selector-group": {
+                "actions": [{
+                    "action": "delete_albums",
+                    "order": 100,
+                    "allowPermission": [
+                        "delete"
+                    ]
+                }]
+            },
+            "sort-selector-group": {
+                "fields": [{
+                    "key": "title",
+                    "title": "Title",
+                    "field": "title"
+                }, {
+                    "key": "description",
+                    "title": "Description",
+                    "field": "description"
+                }, {
+                    "key": "createdOn",
+                    "title": "Created On",
+                    "field": "_system.created_on.ms"
+                }, {
+                    "key": "createdBy",
+                    "title": "Created By",
+                    "field": "_system.created_by"
+                }, {
+                    "key": "modifiedOn",
+                    "title": "Modified On",
+                    "field": "_system.modified_on.ms"
+                }, {
+                    "key": "modifiedBy",
+                    "title": "Modified By",
+                    "field": "_system.modified_by"
+                }, {
+                    "key": "size",
+                    "title": "Size",
+                    "field": "_size"
+                }]
+            }
         }
     }
+
 }
