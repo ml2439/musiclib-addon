@@ -97,20 +97,20 @@ define(function (require, exports, module) {
 
                         var branch = actionContext.observable("branch").get();
 
-                        var createAlbum = function (branch, id, callback) {
+                        var createAlbum = function (branch, id, title, callback) {
                             Chain(branch).createNode({
                                 "_type": "musiclib:album",
                                 "id": id,
-                                "title": albumArray[0].name
+                                "title": title
                             }).then(function () {
                                 callback(null, this);
                             })
                         };
 
-                        var assureAlbum = function (branch, id, callback) {
+                        var assureAlbum = function (branch, id, title, callback) {
                             Chain(branch).trap(function (err) {
                                 // if queryNodes fails, create one
-                                createAlbum(branch, id, callback);
+                                createAlbum(branch, id, title, callback);
                                 return false;               // stop chaining
                             }).queryNodes({
                                 "_type": "musiclib:album",
@@ -142,13 +142,13 @@ define(function (require, exports, module) {
                             })
                         };
 
-                        assureAlbum(branch, albumUrl, function (err, album) {
+                        assureAlbum(branch, albumUrl, albumArray[0].name, function (err, album) {
                             assureArtist(branch, albumArray[0].artist, function (err, artist) {
                                 album.createdBy = {
                                     "ref": artist.ref()
                                 };
                                 album.update().then(function () {
-                                    console.log("updated");
+                                    console.log("New Album Created!");
                                     callback();
                                 });
                             })
