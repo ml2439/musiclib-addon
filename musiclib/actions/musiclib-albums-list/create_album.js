@@ -3,6 +3,7 @@ define(function (require, exports, module) {
     var Ratchet = require("ratchet/ratchet");
     var Actions = require("ratchet/actions");
     var OneTeam = require("oneteam");
+    var MusicLib = require("./musiclib.js");
     var $ = require("jquery");
 
     return Ratchet.Actions.register("create_album", Ratchet.AbstractUIAction.extend({
@@ -45,51 +46,28 @@ define(function (require, exports, module) {
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "title": {
+                            "albumname": {
                                 "type": "string",
                                 "required": true
                             },
                             "albumlist": {
                                 "type": "string"
                             }
+                        },
+                        "dependencies": {
+                            "albumlist": ["albumname"]
                         }
                     },
                     "options": {
                         "fields": {
-                            "title": {
+                            "albumname": {
                                 "type": "text",
-                                "label": "Title"
+                                "label": "Find Album by Name"
                             },
                             "albumlist": {
                                 "type": "select",
                                 "label": "Choose From",
-                                "dataSource": function (callback) {
-                                    if(this.parent.children.length === 0) {
-                                        return callback([]);
-                                    }
-                                    var searchTitle = this.parent.childrenByPropertyId['title'].getValue();
-
-                                    $.ajax({
-                                        url: `http://ws.audioscrobbler.com/2.0/?method=album.search&album=${searchTitle}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
-                                        async: false,
-                                        dataType: 'json'
-                                    })
-                                        .done(function (data) {
-                                            resultAlbums = data.results.albummatches.album.map(function (a) {
-                                                return {
-                                                    "value": a.name,
-                                                    "text": a.name
-                                                }
-                                            });
-                                            callback(resultAlbums);
-                                        })
-                                        .fail(function () {
-                                            console.log("error");
-                                        })
-                                        .always(function () {
-                                            console.log("complete");
-                                        });
-                                }
+                                "dataSource": MusicLib.loadAlbums
                             }
                         }
                     }
@@ -97,43 +75,84 @@ define(function (require, exports, module) {
 
                 c.postRender = function (control) {
 
-                    // refresh albumlist on change
-                    control.childrenByPropertyId['title'].on('change', function () {
+                    var albumArray, albumUrl;
+
+                    // refresh select list on albumname change
+                    control.childrenByPropertyId['albumname'].on('change', function () {
                         control.childrenByPropertyId['albumlist'].refresh();
                     })
 
-                    // refresh albumlist on keyup
-                    // control.childrenByPropertyId['title'].on('keyup', function () {
-                    //     control.childrenByPropertyId['albumlist'].refresh();
-                    // })
-                    
+                    // refresh albumname on select list change 
+                    control.childrenByPropertyId['albumlist'].on('change', function () {
+
+                        albumUrl = control.childrenByPropertyId['albumlist'].getValue();
+
+                        albumArray = control.childrenByPropertyId['albumlist'].apiResults.filter(a => a.url === albumUrl);
+
+                        control.childrenByPropertyId['albumname'].setValue(albumArray[0].name);
+                    })
+
                     // create button
                     $(div).find('.create').click(function () {
 
-                        OneTeam.processFormAction(control, div, function (object) {
+                        var branch = actionContext.observable("branch").get();
 
-                            // create project
-                            self.block("Creating your Album...", function () {
+                        var createAlbum = function (branch, id, callback) {
+                            Chain(branch).createNode({
+                                "_type": "musiclib:album",
+                                "id": id,
+                                "title": albumArray[0].name
+                            }).then(function () {
+                                callback(null, this);
+                            })
+                        };
 
-                                object._type = "n:email_template";
+                        var assureAlbum = function (branch, id, callback) {
+                            Chain(branch).trap(function (err) {
+                                // if queryNodes fails, create one
+                                createAlbum(branch, id, callback);
+                                return false;               // stop chaining
+                            }).queryNodes({
+                                "_type": "musiclib:album",
+                                "id": id
+                            }).keepOne().then(function () {
+                                callback(null, this);
+                            })
+                        };
 
-                                // list the definitions on the branch
-                                OneTeam.projectBranch(actionContext, function () {
+                        var createArtist = function (branch, name, callback) {
+                            Chain(branch).createNode({
+                                "_type": "musiclib:artist",
+                                "title": name
+                            }).then(function () {
+                                callback(null, this);
+                            })
+                        };
 
-                                    this.createNode(object, {
-                                        "rootNodeId": "root",
-                                        "parentFolderPath": "/Templates/Email",
-                                        "associationType": "a:child"
-                                    }).then(function () {
+                        var assureArtist = function (branch, name, callback) {
+                            Chain(branch).trap(function (err) {
+                                // if queryNodes fails, create one
+                                createArtist(branch, name, callback);
+                                return false;
+                            }).queryNodes({
+                                "_type": "musiclib.artist",
+                                "title": name
+                            }).keepOne().then(function () {
+                                callback(null, this);
+                            })
+                        };
 
-                                        self.unblock(function () {
-                                            callback();
-                                        });
-                                    });
+                        assureAlbum(branch, albumUrl, function (err, album) {
+                            assureArtist(branch, albumArray[0].artist, function (err, artist) {
+                                album.createdBy = {
+                                    "ref": artist.ref()
+                                };
+                                album.update().then(function () {
+                                    console.log("updated");
+                                    callback();
                                 });
-                            });
-                        });
-
+                            })
+                        })
                     });
 
                     renderCallback(function () {
