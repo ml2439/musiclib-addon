@@ -1,7 +1,7 @@
 define(function (require, exports, module) {
-    
+
     // called by alpaca; 'this' is alpaca control
-    exports.loadAlbums = function (callback) {
+    var loadAlbums = function (callback) {
 
         if (this.parent.children.length === 0) {
             return callback([]);
@@ -35,6 +35,58 @@ define(function (require, exports, module) {
                 console.log("complete");
             });
     };
+
+
+    var createAlbum = function (branch, id, title, callback) {
+        Chain(branch).createNode({
+            "_type": "musiclib:album",
+            "id": id,
+            "title": title
+        }).then(function () {
+            callback(null, this);
+        })
+    };
+
+    var assureAlbum = function (branch, id, title, callback) {
+        Chain(branch).trap(function (err) {
+            // if queryNodes fails, create one
+            createAlbum(branch, id, title, callback);
+            return false;               // stop chaining
+        }).queryNodes({
+            "_type": "musiclib:album",
+            "id": id
+        }).keepOne().then(function () {
+            callback(null, this);
+        })
+    };
+
+    var createArtist = function (branch, name, callback) {
+        Chain(branch).createNode({
+            "_type": "musiclib:artist",
+            "title": name
+        }).then(function () {
+            callback(null, this);
+        })
+    };
+
+    var assureArtist = function (branch, name, callback) {
+        Chain(branch).trap(function (err) {
+            // if queryNodes fails, create one
+            createArtist(branch, name, callback);
+            return false;
+        }).queryNodes({
+            "_type": "musiclib.artist",
+            "title": name
+        }).keepOne().then(function () {
+            callback(null, this);
+        })
+    };
+
+    exports.loadAlbums = loadAlbums;
+    exports.createArtist = createArtist;
+    exports.createAlbum = createAlbum;
+    exports.assureArtist = assureArtist;
+    exports.assureAlbum = assureAlbum;
 
 });
 

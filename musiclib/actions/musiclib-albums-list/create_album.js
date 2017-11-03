@@ -84,11 +84,8 @@ define(function (require, exports, module) {
 
                     // refresh albumname on select list change 
                     control.childrenByPropertyId['albumlist'].on('change', function () {
-
                         albumUrl = control.childrenByPropertyId['albumlist'].getValue();
-
                         albumArray = control.childrenByPropertyId['albumlist'].apiResults.filter(a => a.url === albumUrl);
-
                         control.childrenByPropertyId['albumname'].setValue(albumArray[0].name);
                     })
 
@@ -97,59 +94,14 @@ define(function (require, exports, module) {
 
                         var branch = actionContext.observable("branch").get();
 
-                        var createAlbum = function (branch, id, title, callback) {
-                            Chain(branch).createNode({
-                                "_type": "musiclib:album",
-                                "id": id,
-                                "title": title
-                            }).then(function () {
-                                callback(null, this);
-                            })
-                        };
-
-                        var assureAlbum = function (branch, id, title, callback) {
-                            Chain(branch).trap(function (err) {
-                                // if queryNodes fails, create one
-                                createAlbum(branch, id, title, callback);
-                                return false;               // stop chaining
-                            }).queryNodes({
-                                "_type": "musiclib:album",
-                                "id": id
-                            }).keepOne().then(function () {
-                                callback(null, this);
-                            })
-                        };
-
-                        var createArtist = function (branch, name, callback) {
-                            Chain(branch).createNode({
-                                "_type": "musiclib:artist",
-                                "title": name
-                            }).then(function () {
-                                callback(null, this);
-                            })
-                        };
-
-                        var assureArtist = function (branch, name, callback) {
-                            Chain(branch).trap(function (err) {
-                                // if queryNodes fails, create one
-                                createArtist(branch, name, callback);
-                                return false;
-                            }).queryNodes({
-                                "_type": "musiclib.artist",
-                                "title": name
-                            }).keepOne().then(function () {
-                                callback(null, this);
-                            })
-                        };
-
-                        assureAlbum(branch, albumUrl, albumArray[0].name, function (err, album) {
-                            assureArtist(branch, albumArray[0].artist, function (err, artist) {
+                        MusicLib.assureAlbum(branch, albumUrl, albumArray[0].name, function (err, album) {
+                            MusicLib.assureArtist(branch, albumArray[0].artist, function (err, artist) {
                                 album.createdBy = {
                                     "ref": artist.ref()
                                 };
                                 album.update().then(function () {
                                     console.log("New Album Created!");
-                                    callback();
+                                    callback();     // refresh Album list
                                 });
                             })
                         })
