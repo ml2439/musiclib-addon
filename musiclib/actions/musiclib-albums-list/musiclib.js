@@ -75,7 +75,7 @@ define(function (require, exports, module) {
             createArtist(branch, name, callback);
             return false;
         }).queryNodes({
-            "_type": "musiclib.artist",
+            "_type": "musiclib:artist",
             "title": name
         }).keepOne().then(function () {
             callback(null, this);
