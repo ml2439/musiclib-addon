@@ -100,7 +100,6 @@ define(function (require, exports, module) {
                                     "ref": artist.ref()
                                 };
                                 album.update().then(function () {
-                                    console.log("New Album Created!");
                                     callback();     // refresh Album list
                                 });
                             })

@@ -7,13 +7,13 @@ define(function (require, exports, module) {
             return callback([]);
         }
 
-        var findName = this.parent.childrenByPropertyId['albumname'].getValue();
+        var albumName = this.parent.childrenByPropertyId['albumname'].getValue();
 
         // alpaca control instance
         var me = this;
 
         $.ajax({
-            url: `http://ws.audioscrobbler.com/2.0/?method=album.search&album=${findName}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
+            url: `http://ws.audioscrobbler.com/2.0/?method=album.search&album=${albumName}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
             async: false,
             dataType: 'json'
         })
@@ -36,6 +36,28 @@ define(function (require, exports, module) {
             });
     };
 
+    // var fetchArtist = function (name) {
+
+    //     var artistName = name.split(' ').join('+');
+
+    //     $.ajax({
+    //         url: `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artistName}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
+    //         async: false,
+    //         dataType: 'json'
+    //     })
+    //         .done(function (data) {
+    //             // if succeed, resultArtist is an array of one element which is the artist of interest.
+    //             resultArtist = data.results.artistmatches.artist.filter(a => a.url === `https://www.last.fm/music/${artistName}`);
+    //             return resultArtist[0];
+    //         })
+    //         .fail(function () {
+    //             console.log("error");
+    //         })
+    //         .always(function () {
+    //             console.log("complete");
+    //         });
+
+    // }
 
     var createAlbum = function (branch, id, title, callback) {
         Chain(branch).createNode({
@@ -60,10 +82,12 @@ define(function (require, exports, module) {
         })
     };
 
-    var createArtist = function (branch, name, callback) {
+    var createArtist = function (branch, id, name, listeners, callback) {
         Chain(branch).createNode({
             "_type": "musiclib:artist",
-            "title": name
+            "id": id,
+            "title": name,
+            "listeners": parseInt(listeners)
         }).then(function () {
             callback(null, this);
         })
@@ -71,8 +95,27 @@ define(function (require, exports, module) {
 
     var assureArtist = function (branch, name, callback) {
         Chain(branch).trap(function (err) {
-            // if queryNodes fails, create one
-            createArtist(branch, name, callback);
+            // if queryNodes fails, fetch artist data with its url(made out of name) and create one
+            // ajax response containing artist info
+            // var artistInfo = fetchArtist(name);
+            $.ajax({
+                url: `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${name.split(' ').join('+')}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
+                async: false,
+                dataType: 'json'
+            })
+                .done(function (data) {
+                    // if succeed, resultArtist is an array of one element which is the artist of interest.
+                    resultArtist = data.results.artistmatches.artist.filter(a => a.name === name);
+                    var artistInfo = resultArtist[0];
+                    createArtist(branch, artistInfo.url, name, artistInfo.listeners, callback);
+                })
+                .fail(function () {
+                    console.log("error");
+                })
+                .always(function () {
+                    console.log("complete");
+                });
+    
             return false;
         }).queryNodes({
             "_type": "musiclib:artist",
