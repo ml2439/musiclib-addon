@@ -100,7 +100,8 @@ define(function (require, exports, module) {
                                     "ref": artist.ref()
                                 };
                                 album.update().then(function () {
-                                    callback();     // refresh Album list
+                                    $(div).modal("hide");
+                                    callback();
                                 });
                             })
                         })
