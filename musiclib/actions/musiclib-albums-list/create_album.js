@@ -94,7 +94,7 @@ define(function (require, exports, module) {
 
                         var branch = actionContext.observable("branch").get();
 
-                        MusicLib.assureAlbum(branch, albumUrl, albumArray[0].name, function (err, album) {
+                        MusicLib.assureAlbum(branch, albumUrl, albumArray[0].name, albumArray[0].image, function (err, album) {
                             MusicLib.assureArtist(branch, albumArray[0].artist, function (err, artist) {
                                 album.createdBy = {
                                     "ref": artist.ref()

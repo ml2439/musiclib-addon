@@ -59,20 +59,22 @@ define(function (require, exports, module) {
 
     }
 
-    var createAlbum = function (branch, id, title, callback) {
+    var createAlbum = function (branch, id, title, imageArray, callback) {
         Chain(branch).createNode({
             "_type": "musiclib:album",
             "id": id,
-            "title": title
+            "title": title,
+            "images": imageArray
         }).then(function () {
             callback(null, this);
         })
     };
 
-    var assureAlbum = function (branch, id, title, callback) {
+    var assureAlbum = function (branch, id, title, imageArray, callback) {
         Chain(branch).trap(function (err) {
             // if queryNodes fails, create one
-            createAlbum(branch, id, title, callback);
+            createAlbum(branch, id, title, imageArray, callback);
+
             return false;               // stop chaining
         }).queryNodes({
             "_type": "musiclib:album",
@@ -82,12 +84,13 @@ define(function (require, exports, module) {
         })
     };
 
-    var createArtist = function (branch, id, name, listeners, callback) {
+    var createArtist = function (branch, id, name, listeners, imageArray, callback) {
         Chain(branch).createNode({
             "_type": "musiclib:artist",
             "id": id,
             "title": name,
-            "listeners": parseInt(listeners)
+            "listeners": parseInt(listeners),
+            "images": imageArray
         }).then(function () {
             callback(null, this);
         })
@@ -97,7 +100,7 @@ define(function (require, exports, module) {
         Chain(branch).trap(function (err) {
 
             fetchArtist(name, function (err, artistInfo) {
-                createArtist(branch, artistInfo.url, name, artistInfo.listeners, callback);                
+                createArtist(branch, artistInfo.url, name, artistInfo.listeners, artistInfo.image, callback);                
             });
 
             return false;
