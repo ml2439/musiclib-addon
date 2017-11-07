@@ -2,46 +2,66 @@
     "evaluator": "context-project",
     "config": {
         "context": {
-            "items": [{
-                "key": "list/header",
-                "title": "List",
-                "order": 10000,
-                "header": true,
-                "iconClass": "fa fa-dashboard",
-                "allowAuthority": [
-                    "manager",
-                    "editorial",
-                    "developer"
-                ],
-                "items": [{
-                    "key": "musiclib/albums",
-                    "title": "Albums",
-                    "uri": "#/projects/{projectId}/albums",
-                    "iconClass": "fa fa-music",
+            "items": [
+                {
+                    "key": "project/content/heading",
                     "allowAuthority": [
                         "manager",
-                        "editorial"
+                        "developer"
                     ]
-                }, {
-                    "key": "musiclib/artists",
-                    "title": "Artists",
-                    "uri": "#/projects/{projectId}/artists",
-                    "iconClass": "fa fa-user",
+                },
+                {
+                    "key": "project/search/heading",
                     "allowAuthority": [
                         "manager",
-                        "editorial"
+                        "developer"
                     ]
-                }, {
-                    "key": "musiclib/reviews",
-                    "title": "Reviews",
-                    "uri": "#/projects/{projectId}/reviews",
-                    "iconClass": "fa fa-comments",
+                },
+                {
+                    "key": "list/header",
+                    "title": "List",
+                    "order": 10000,
+                    "header": true,
+                    "iconClass": "fa fa-dashboard",
                     "allowAuthority": [
                         "manager",
-                        "editorial"
+                        "editorial",
+                        "developer"
+                    ],
+                    "items": [
+                        {
+                            "key": "musiclib/albums",
+                            "title": "Albums",
+                            "uri": "#/projects/{projectId}/albums",
+                            "iconClass": "fa fa-music",
+                            "allowAuthority": [
+                                "manager",
+                                "editorial"
+                            ]
+                        },
+                        {
+                            "key": "musiclib/artists",
+                            "title": "Artists",
+                            "uri": "#/projects/{projectId}/artists",
+                            "iconClass": "fa fa-user",
+                            "allowAuthority": [
+                                "manager",
+                                "editorial"
+                            ]
+                        },
+                        {
+                            "key": "musiclib/reviews",
+                            "title": "Reviews",
+                            "uri": "#/projects/{projectId}/reviews",
+                            "iconClass": "fa fa-comments",
+                            "allowAuthority": [
+                                "manager",
+                                "editorial"
+                            ]
+                        }
                     ]
-                }]
-            }]
+                }
+            ]
         }
     }
 }
