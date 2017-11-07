@@ -8,33 +8,37 @@
                 "order": 10000,
                 "header": true,
                 "iconClass": "fa fa-dashboard",
-                "allowAuthority": ["manager"],
-                "allowPermission": ["read"],
-                "rejectAuthority": [],
-                "rejectPermission": [],
+                "allowAuthority": [
+                    "manager",
+                    "editorial",
+                    "developer"
+                ],
                 "items": [{
                     "key": "musiclib/albums",
                     "title": "Albums",
                     "uri": "#/projects/{projectId}/albums",
                     "iconClass": "fa fa-music",
-                    "allowPermission": [
-                        "manager"
+                    "allowAuthority": [
+                        "manager",
+                        "editorial"
                     ]
                 }, {
                     "key": "musiclib/artists",
                     "title": "Artists",
                     "uri": "#/projects/{projectId}/artists",
                     "iconClass": "fa fa-user",
-                    "allowPermission": [
-                        "manager"
+                    "allowAuthority": [
+                        "manager",
+                        "editorial"
                     ]
                 }, {
                     "key": "musiclib/reviews",
                     "title": "Reviews",
                     "uri": "#/projects/{projectId}/reviews",
                     "iconClass": "fa fa-comments",
-                    "allowPermission": [
-                        "manager"
+                    "allowAuthority": [
+                        "manager",
+                        "editorial"
                     ]
                 }]
             }]
