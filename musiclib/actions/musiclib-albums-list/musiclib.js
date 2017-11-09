@@ -38,7 +38,7 @@ define(function (require, exports, module) {
 
     var fetchArtist = function (name, callback) {   // who uses fetchArtist defines callback
 
-        var artistName = name.split(' ').join('+');
+        var artistName = name.split(' ').join('+').split('&').join('%26');
 
         $.ajax({
             url: `http://ws.audioscrobbler.com/2.0/?method=artist.search&artist=${artistName}&api_key=8a3ce4ba56411d1474cfb9fa9f335752&format=json`,
